@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.0 — 2026-11-04
+
+Nordic theme, light and dark modes, accessibility.
+
+- New look shared across the CAITO tool suite: an airy Nordic palette with its own accent and icon (also the browser tab icon)
+- **Light / dark toggle** in the header. It follows your device until you choose, then remembers your choice across all the tools
+- Inter font (SIL Open Font License) is now built into the file, so the app makes no font requests and looks the same everywhere
+- Accessibility: every control has a label, all text meets WCAG AA contrast in both modes, and keyboard focus is clearly visible
+- The app interface moves to the shared theme with a dark mode; your document brand themes are unchanged in previews and exports.
+
 ## 1.0.1 — 2026-11-03
 
 - Footer on every screen with authorship, LinkedIn and Portfolio Toolbox links
