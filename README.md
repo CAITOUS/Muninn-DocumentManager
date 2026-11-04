@@ -4,6 +4,10 @@
 
 Muninn is a single HTML file. It needs no installation and no server of its own. Open it in a Chromium browser (Chrome, Edge, Brave) and point it at a folder or a GitHub repository.
 
+### ▶ [Launch Muninn in your browser](https://caitous.github.io/Muninn-DocumentManager/) &nbsp;·&nbsp; ⬇ [Download the latest release](https://github.com/CAITOUS/Muninn-DocumentManager/releases/latest)
+
+No sign-up and no install. To look around, open **? Help → Try the demo**; sample documents open in a sandbox and nothing is saved.
+
 ![The Muninn editor: form on the left, live branded document on the right](docs/images/editor.webp)
 
 ---
@@ -38,8 +42,10 @@ Muninn is a single HTML file. It needs no installation and no server of its own.
 
 ## Quick start
 
-1. **Download** `Muninn.html` from the latest release (or this repository).
-2. **Open it** in Chrome, Edge or Brave.
+1. **Open Muninn**, either way:
+   - **In your browser:** [caitous.github.io/Muninn-DocumentManager](https://caitous.github.io/Muninn-DocumentManager/). Nothing to download; your documents still stay in your own folder or GitHub repo.
+   - **Offline copy:** download `Muninn.html` (app only) or `muninn-<version>.zip` (app + guides + relay + examples) from [Releases](https://github.com/CAITOUS/Muninn-DocumentManager/releases/latest), then open `Muninn.html`.
+2. **Use a Chromium browser:** Chrome, Edge or Brave.
    - Brave: folder access is off by default. Open `brave://flags/#file-system-access-api`, set it to **Enabled**, and relaunch.
 3. **Connect:** choose a folder, a GitHub repo, or *Continue without connecting*.
 4. **Brand it:** on **Company & Brand**, add your company name, a logo and a theme.
@@ -67,7 +73,9 @@ Each organisation sets up its own GitHub App and relay. Nothing depends on the a
 
 ```
 Muninn.html            The app (single file)
-index.html             Redirect, so GitHub Pages can serve the app
+index.html             Opens Muninn.html when the site is visited (GitHub Pages)
+.nojekyll              Serve files as-is on GitHub Pages
+.github/workflows/     Release workflow: builds the download package for each version tag
 muninn.json            Version file that copies of Muninn check for updates
 relay/                 Optional sign-in relay (Cloudflare Worker) + setup guide
 docs/                  Sign-in, admin setup, file format, security, releasing

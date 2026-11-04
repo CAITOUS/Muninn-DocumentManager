@@ -1,0 +1,16 @@
+{
+  "switchboard": "docs",
+  "version": 1,
+  "publishBranch": "main",
+  "docsPath": "examples/docs",
+  "auth": { "modes": ["token"] },
+  "branding": {
+    "name": "Northwind Dental Group",
+    "code": "NWD",
+    "tagline": "Operations Manual",
+    "theme": "lagoon",
+    "classification": "Internal Use",
+    "reviewMonths": 12,
+    "departments": "IT, OPS, FRONT, CLIN"
+  }
+}

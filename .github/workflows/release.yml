@@ -1,0 +1,70 @@
+name: Release
+
+# Builds the downloadable package whenever a version tag (e.g. v1.0.0) is pushed,
+# and attaches it to a GitHub Release:
+#   - Muninn.html                 the app on its own
+#   - muninn-<version>.zip        the full package (app, docs, relay, examples, license)
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag to (re)build, e.g. v1.0.0'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - name: Work out version
+        id: v
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "ver=${TAG#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Check the app version matches the tag
+        run: |
+          grep -q "version:'${{ steps.v.outputs.ver }}'" Muninn.html \
+            || { echo "::error::Muninn.html version does not match tag ${{ steps.v.outputs.tag }}"; exit 1; }
+
+      - name: Build package
+        run: |
+          NAME="muninn-${{ steps.v.outputs.ver }}"
+          mkdir -p "dist/$NAME"
+          cp -r Muninn.html index.html README.md LICENSE.md CHANGELOG.md muninn.json docs relay examples "dist/$NAME/"
+          cd dist && zip -qr "$NAME.zip" "$NAME" && cp "$NAME/Muninn.html" Muninn.html
+          ls -la
+
+      - name: Release notes from CHANGELOG
+        run: |
+          awk -v v="## ${{ steps.v.outputs.ver }}" '$0 ~ "^"v {f=1;next} /^## /{if(f)exit} f' CHANGELOG.md > notes.md
+          {
+            echo ""
+            echo "**Launch in your browser:** https://${GITHUB_REPOSITORY_OWNER,,}.github.io/${GITHUB_REPOSITORY#*/}/"
+            echo ""
+            echo "**Download:** \`Muninn.html\` (the app only) or \`muninn-${{ steps.v.outputs.ver }}.zip\` (app + guides + sign-in relay + examples)."
+          } >> notes.md
+          cat notes.md
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.v.outputs.tag }}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/Muninn.html "dist/muninn-${{ steps.v.outputs.ver }}.zip" --clobber
+            gh release edit "$TAG" --notes-file notes.md
+          else
+            gh release create "$TAG" dist/Muninn.html "dist/muninn-${{ steps.v.outputs.ver }}.zip" \
+              --title "Muninn ${{ steps.v.outputs.ver }}" --notes-file notes.md --latest
+          fi
