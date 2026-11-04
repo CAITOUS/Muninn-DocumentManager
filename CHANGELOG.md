@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1 — 2026-11-03
+
+- Footer on every screen with authorship, LinkedIn and Portfolio Toolbox links
+- Copyright notice uses the author's full name
+
 ## 1.0.0 — 2026-11-03
 
 First public release.

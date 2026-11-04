@@ -1,8 +1,8 @@
 # Muninn — Document Manager · License
 
-Copyright © 2026 Triston H. All rights reserved.
+Copyright © 2026 Triston Hughes. All rights reserved.
 
-Muninn — Document Manager ("Muninn"), including its source code, design, help content and related files, is the intellectual property of Triston H. (the "Author").
+Muninn — Document Manager ("Muninn"), including its source code, design, help content and related files, is the intellectual property of Triston Hughes (the "Author").
 
 ## Permitted use
 

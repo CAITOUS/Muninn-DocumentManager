@@ -113,7 +113,7 @@ table.list th{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:
 .tcap{position:absolute;left:12px;right:12px;bottom:12px;background:#1d2329e6;color:#fff;border-radius:8px;padding:10px 14px;display:flex;flex-direction:column;gap:2px;font-size:13.5px}.tcap b{font-size:15px}
 .tdot{width:8px;height:8px;border-radius:50%;background:#c4cad1;display:inline-block;cursor:pointer}.tdot.on{background:var(--p)}
 .updbar{display:flex;gap:10px;align-items:center;background:#fff8e6;border-bottom:1px solid #f0d58a;padding:8px 20px;font-size:13px}
-.appfoot{margin-top:40px;padding-top:14px;border-top:1px solid var(--line);display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--mut);align-items:baseline}.appfoot a{color:var(--mut)}
+.appfoot{margin-top:40px;padding-top:14px;border-top:1px solid var(--line);display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--mut);align-items:baseline}.appfoot a{color:var(--mut)}.appfoot .byline{color:var(--ink)}.appfoot .byline a{color:var(--p);font-weight:600;text-decoration:none}.appfoot .byline a:hover{text-decoration:underline}
 #exModal .box{max-width:1040px;height:min(720px,92vh)}
 .exw{display:grid;grid-template-columns:280px minmax(0,1fr);gap:14px;flex:1;min-height:0}.exw>div{min-height:0;display:flex;flex-direction:column}
 .exsrc{border-right:1px solid var(--line);padding-right:10px;overflow:auto}
@@ -1373,7 +1373,8 @@ async function loadHist(){const d=curDoc(),body=$('#ghHistBody');if(!d||!d._repo
   catch(e){body.textContent='⚠ '+e.message}}
 
 /* ================= VERSION, UPDATES, NOTICE ================= */
-const MUNINN={name:'Muninn — Document Manager',version:'1.0.0',released:'2026-11-03',author:'Triston H.',year:'2026',
+const MUNINN={name:'Muninn — Document Manager',version:'1.0.1',released:'2026-11-03',author:'Triston Hughes',year:'2026',
+  linkedin:'https://www.linkedin.com/in/triston-hughes-949420242/',portfolio:'https://triston-hughes.vercel.app/',
   /* Set to the raw URL of muninn.json in the repo you publish from, e.g.
      https://raw.githubusercontent.com/<you>/<portfolio-repo>/main/muninn/muninn.json */
   manifestUrl:'https://raw.githubusercontent.com/CAITOUS/Muninn-DocumentManager/main/muninn.json'};
@@ -1389,7 +1390,8 @@ async function checkUpdates(manual){const url=(PRECONFIG&&PRECONFIG.updateUrl)||
 function showUpdate(manual){const el=$('#updBar');if(!el)return;const dis=lsGet(KEY+'-upd-dismiss','');
   if(UPD&&UPD.newer&&(manual||dis!==UPD.latest)){el.innerHTML=`<span>🆕 <b>Muninn ${esc(UPD.latest)}</b> is available — you have ${esc(MUNINN.version)}.${UPD.notes?' '+esc(UPD.notes):''}</span><span class="spacer"></span>${UPD.download?`<a class="btn sm pri" href="${esc(UPD.download)}" target="_blank" rel="noopener" style="text-decoration:none">Get the update</a>`:''}<button class="btn sm ghost" onclick="lsSet(KEY+'-upd-dismiss',UPD.latest);$('#updBar').style.display='none'">Later</button>`;el.style.display='flex'}
   else{el.style.display='none';if(manual&&UPD)toast(UPD.newer?'Update available':'You’re on the latest version ('+MUNINN.version+')')}}
-function footerHTML(){return `<footer class="appfoot"><span><b>Muninn</b> v${MUNINN.version}</span><span>${esc(NOTICE)}</span><a href="#help-about">About &amp; license</a></footer>`}
+function authorLinks(){return `Built by <b>${esc(MUNINN.author)}</b> · <a href="${MUNINN.linkedin}" target="_blank" rel="noopener">LinkedIn</a> · <a href="${MUNINN.portfolio}" target="_blank" rel="noopener">Portfolio Toolbox</a>`}
+function footerHTML(){return `<footer class="appfoot"><div class="row" style="gap:14px;width:100%"><span><b>Muninn</b> v${MUNINN.version}</span><span class="byline">${authorLinks()}</span><span class="spacer"></span><a href="#help-about">About &amp; license</a></div><span>${esc(NOTICE)}</span></footer>`}
 
 /* ================= REPO LOAD CACHE ================= */
 async function blobText(sha){const b=await gh('GET',rp(`/git/blobs/${sha}`));return b64d(b.content)}
@@ -1555,6 +1557,7 @@ const HELP=[
  ['about','About & license',()=>`<p><b>${esc(MUNINN.name)}</b> · version <b>${MUNINN.version}</b> (released ${MUNINN.released})</p><p>${esc(NOTICE)}</p>
    <div class="callout"><b>Permitted:</b> personal use, educational use, evaluation, and internal use by an organization to manage its own documents. <b>Not permitted:</b> selling Muninn or access to it, sublicensing, bundling it into a paid product or service, or distribution by value-added resellers (VARs). See LICENSE in the repository Muninn was obtained from.</div>
    <div class="row" style="margin-top:10px"><button class="btn" onclick="checkUpdates(true)">Check for updates</button><span class="hint">${MUNINN.manifestUrl||(PRECONFIG&&PRECONFIG.updateUrl)?'Muninn checks for a newer version each time it opens.':'Update checks aren’t configured in this copy.'}</span></div>
+   <p>${authorLinks()}</p>
    <p class="hint" style="margin-top:14px">Muninn keeps your documents as plain files in places you control (this browser, your folders, or your GitHub repos). It has no server of its own and sends nothing anywhere except the services you connect: GitHub, your sign-in relay, and the AI you choose.</p>`]];
 function vHelp(){const sec=HELP.find(h=>h[0]===HELP_SEC)||HELP[0];
   $('#view').innerHTML=`<div class="help"><aside class="hnav"><div class="hint" style="font-weight:700;letter-spacing:.6px;margin:0 0 6px 10px">HELP GUIDE</div>${HELP.map(h=>`<a href="#help-${h[0]}" class="${h===sec?'on':''}">${esc(h[1])}</a>`).join('')}

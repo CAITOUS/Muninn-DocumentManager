@@ -98,4 +98,8 @@ Muninn has no backend and no analytics. It talks only to what you connect: your 
 
 ## License
 
-© 2026 Triston H. All rights reserved. Muninn is free for **personal, educational and internal organisational use**. It is **not** for resale, sublicensing, distribution by value-added resellers (VARs), or provision to other organisations as a paid service. Documents you create with Muninn belong to you. See [LICENSE.md](LICENSE.md).
+© 2026 Triston Hughes. All rights reserved. Muninn is free for **personal, educational and internal organisational use**. It is **not** for resale, sublicensing, distribution by value-added resellers (VARs), or provision to other organisations as a paid service. Documents you create with Muninn belong to you. See [LICENSE.md](LICENSE.md).
+
+---
+
+Built by **Triston Hughes** · [LinkedIn](https://www.linkedin.com/in/triston-hughes-949420242/) · [Portfolio Toolbox](https://triston-hughes.vercel.app/)
