@@ -1,70 +1,92 @@
 name: Release
 
-# Builds the downloadable package whenever a version tag (e.g. v1.0.0) is pushed,
-# and attaches it to a GitHub Release:
-#   - Muninn.html                 the app on its own
-#   - muninn-<version>.zip        the full package (app, docs, relay, examples, license)
+# Publishes a GitHub Release with the downloadable package whenever main contains a
+# Muninn version that hasn't been released yet (the version is read from Muninn.html).
+#
+# Release assets:
+#   - Muninn.html               the app on its own
+#   - muninn-<version>.zip      the full package (app, guides, sign-in relay, examples, license)
+#
+# To release: bump `version` in Muninn.html (and muninn.json + CHANGELOG.md), push to main.
 
 on:
   push:
-    tags: ['v*']
+    branches: [main]
+    paths: ['Muninn.html', 'muninn.json', 'CHANGELOG.md', '.github/workflows/release.yml']
   workflow_dispatch:
     inputs:
-      tag:
-        description: 'Existing tag to (re)build, e.g. v1.0.0'
-        required: true
+      rebuild:
+        description: 'Re-upload assets even if this version is already released'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
 
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.inputs.tag || github.ref }}
 
-      - name: Work out version
+      - name: Read version from Muninn.html
         id: v
         run: |
-          TAG="${{ github.event.inputs.tag || github.ref_name }}"
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          echo "ver=${TAG#v}" >> "$GITHUB_OUTPUT"
+          VER=$(grep -oE "version:'[0-9]+\.[0-9]+\.[0-9]+[^']*'" Muninn.html | head -1 | sed -E "s/version:'([^']+)'/\1/")
+          [ -n "$VER" ] || { echo "::error::Could not find version in Muninn.html"; exit 1; }
+          echo "ver=$VER" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VER" >> "$GITHUB_OUTPUT"
+          if gh release view "v$VER" >/dev/null 2>&1; then echo "exists=true" >> "$GITHUB_OUTPUT"; else echo "exists=false" >> "$GITHUB_OUTPUT"; fi
+          echo "Muninn version: $VER"
 
-      - name: Check the app version matches the tag
+      - name: Check muninn.json matches
+        if: steps.v.outputs.exists == 'false' || inputs.rebuild
         run: |
-          grep -q "version:'${{ steps.v.outputs.ver }}'" Muninn.html \
-            || { echo "::error::Muninn.html version does not match tag ${{ steps.v.outputs.tag }}"; exit 1; }
+          grep -q "\"latest\": *\"${{ steps.v.outputs.ver }}\"" muninn.json \
+            || echo "::warning::muninn.json 'latest' is not ${{ steps.v.outputs.ver }}; existing copies won't be told about this release"
 
       - name: Build package
+        if: steps.v.outputs.exists == 'false' || inputs.rebuild
         run: |
           NAME="muninn-${{ steps.v.outputs.ver }}"
           mkdir -p "dist/$NAME"
           cp -r Muninn.html index.html README.md LICENSE.md CHANGELOG.md muninn.json docs relay examples "dist/$NAME/"
-          cd dist && zip -qr "$NAME.zip" "$NAME" && cp "$NAME/Muninn.html" Muninn.html
-          ls -la
+          (cd dist && zip -qr "$NAME.zip" "$NAME" && cp "$NAME/Muninn.html" Muninn.html)
+          ls -la dist
 
-      - name: Release notes from CHANGELOG
+      - name: Release notes
+        if: steps.v.outputs.exists == 'false' || inputs.rebuild
         run: |
-          awk -v v="## ${{ steps.v.outputs.ver }}" '$0 ~ "^"v {f=1;next} /^## /{if(f)exit} f' CHANGELOG.md > notes.md
+          awk -v v="## ${{ steps.v.outputs.ver }}" 'index($0,v)==1 {f=1;next} /^## /{if(f)exit} f' CHANGELOG.md > notes.md
+          OWNER=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
           {
             echo ""
-            echo "**Launch in your browser:** https://${GITHUB_REPOSITORY_OWNER,,}.github.io/${GITHUB_REPOSITORY#*/}/"
-            echo ""
-            echo "**Download:** \`Muninn.html\` (the app only) or \`muninn-${{ steps.v.outputs.ver }}.zip\` (app + guides + sign-in relay + examples)."
+            echo "### Get Muninn"
+            echo "- **Launch in your browser (no download):** https://${OWNER}.github.io/${GITHUB_REPOSITORY#*/}/"
+            echo "- **App only:** \`Muninn.html\`, download and open in Chrome, Edge or Brave"
+            echo "- **Full package:** \`muninn-${{ steps.v.outputs.ver }}.zip\`, app plus guides, sign-in relay, examples and license"
           } >> notes.md
           cat notes.md
 
       - name: Publish release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: steps.v.outputs.exists == 'false' || inputs.rebuild
         run: |
           TAG="${{ steps.v.outputs.tag }}"
-          if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" dist/Muninn.html "dist/muninn-${{ steps.v.outputs.ver }}.zip" --clobber
+          FILES="dist/Muninn.html dist/muninn-${{ steps.v.outputs.ver }}.zip"
+          if [ "${{ steps.v.outputs.exists }}" = "true" ]; then
+            gh release upload "$TAG" $FILES --clobber
             gh release edit "$TAG" --notes-file notes.md
           else
-            gh release create "$TAG" dist/Muninn.html "dist/muninn-${{ steps.v.outputs.ver }}.zip" \
+            gh release create "$TAG" $FILES --target "$GITHUB_SHA" \
               --title "Muninn ${{ steps.v.outputs.ver }}" --notes-file notes.md --latest
           fi
+
+      - name: Nothing to do
+        if: steps.v.outputs.exists == 'true' && !inputs.rebuild
+        run: echo "Version ${{ steps.v.outputs.ver }} is already released. Bump the version in Muninn.html to publish a new release."

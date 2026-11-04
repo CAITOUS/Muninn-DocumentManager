@@ -24,15 +24,10 @@ Every copy of Muninn has a version number (footer and **Help → About**). It ca
    { "latest": "1.1.0", "released": "2026-12-01", "download": "https://github.com/CAITOUS/Muninn-DocumentManager/releases/latest", "notes": "One-line summary shown in the banner." }
    ```
 
-4. Commit and push to `main`. The hosted app on GitHub Pages updates within a minute or two.
-5. Tag and push the version:
-
-   ```bash
-   git tag v1.1.0
-   git push origin v1.1.0
-   ```
-
-   The **Release** workflow checks that the tag matches the app version, then publishes a GitHub Release with `Muninn.html` and `muninn-1.1.0.zip` (app, guides, relay, examples, license), using the CHANGELOG entry as release notes.
+4. Commit and push to `main`.
+   - The hosted app on GitHub Pages updates within a minute or two.
+   - The **Release** workflow sees a version that hasn't been released yet. It then creates the `v1.1.0` tag and a GitHub Release with `Muninn.html` and `muninn-1.1.0.zip` (app, guides, relay, examples, license), using the CHANGELOG entry as the release notes.
+   - Pushes that don't change the version don't create a release. To re-upload assets for the current version, run the workflow manually with **rebuild** ticked.
 
 Copies with an older version show: *"Muninn 1.1.0 is available — Get the update / Later"*.
 
