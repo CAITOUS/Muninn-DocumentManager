@@ -1,0 +1,9 @@
+name = "muninn-relay"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+[vars]
+# Your GitHub App's client ID (GitHub App settings > General > Client ID)
+CLIENT_ID = "Iv1.REPLACE_ME"
+# Who may call the relay. "null" allows Muninn opened as a local file.
+ALLOWED_ORIGINS = "*"
