@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.0 — 2026-11-05
+
+Feedback button.
+
+- **Feedback** button in the header, next to the light/dark toggle. It opens a short form (in a new tab) for bugs, questions and ideas about this app
+
 ## 1.1.0 — 2026-11-04
 
 Nordic theme, light and dark modes, accessibility.
